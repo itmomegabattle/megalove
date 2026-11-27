@@ -1,0 +1,74 @@
+body.faculty-chart {
+  display: grid;
+  align-items: end;
+  min-height: 100svh;
+  background: transparent;
+  color: #f7fbff;
+}
+.faculty-stage {
+  width: min(87vw, 94rem);
+  margin: 0 auto clamp(.75rem, 5vh, 3.5rem);
+  container-type: inline-size;
+}
+.faculty-heading {
+  margin-bottom: clamp(.75rem, 2.2vh, 1.6rem);
+}
+.faculty-heading h1 {
+  width: fit-content;
+  margin: 0;
+  padding: .26em .46em;
+  border-radius: 6px;
+  background: #122840;
+  color: #f7fbff;
+  text-shadow: none;
+}
+.faculty-heading h1 { font-size: clamp(1.4rem, 5.2cqw, 5rem); line-height: 1.08 }
+.faculty-bars {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: end;
+  gap: clamp(.25rem, 2vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.faculty-bar { min-width: 0; text-align: center }
+.faculty-track {
+  display: grid;
+  align-items: end;
+  height: clamp(7.5rem, 32vh, 27rem);
+}
+.faculty-fill {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  height: var(--bar-height, 0%);
+  min-height: clamp(1.9rem, 5.1cqw, 5.3rem);
+  border-radius: 6px;
+  background: #1a4c85;
+  transition: height 700ms cubic-bezier(.2,.78,.27,1), background-color 360ms ease;
+}
+.faculty-bar[data-leader] .faculty-fill { background: #1270d2 }
+.faculty-votes {
+  padding: .18em 0;
+  font-size: clamp(1rem, 3.35cqw, 3.4rem);
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.faculty-label {
+  display: grid;
+  place-items: center;
+  min-height: 3.4em;
+  margin-top: .4rem;
+  padding: .3em .1em;
+  border-radius: 6px;
+  background: #122840;
+  font-size: clamp(.72rem, 1.85cqw, 1.9rem);
+  font-weight: 850;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  .faculty-fill { transition: none }
+}

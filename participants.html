@@ -1,0 +1,222 @@
+{{define "head"}}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.}} · Мегабаттл</title>
+  <link rel="stylesheet" href="/assets/viewer.css?v=6px">
+  <link rel="stylesheet" href="/assets/admin.css?v=people-groups">
+</head>
+<body class="admin-shell">
+<header class="admin-header">
+  <a href="/admin" class="brand" aria-label="Мегабаттл, панель администратора">
+    <picture><source media="(prefers-color-scheme: light)" srcset="/assets/logo-light.png"><img src="/assets/logo.png" alt="" width="66" height="40"></picture>
+  </a>
+  <span>Управление голосованием</span>
+</header>
+<main class="admin-main">{{end}}
+{{define "end"}}</main></body></html>{{end}}
+
+{{define "admin-login"}}
+{{template "head" "Вход администратора"}}
+<section class="admin-login panel">
+  <h1>Вход администратора</h1>
+  <form method="post" action="/admin/login">
+    <label for="password">Пароль</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    {{if .}}<p role="alert">{{.}}</p>{{end}}
+    <button class="primary" type="submit">Войти</button>
+  </form>
+</section>
+{{template "end"}}
+{{end}}
+
+{{define "events"}}
+{{template "head" "Мероприятия"}}
+<p><a href="/admin">Панель администратора</a></p>
+<h1>Участники</h1>
+<ul>{{range .Events}}
+  <li><a href="/admin/events/{{.ID}}/participants">{{.Name}}</a></li>
+{{else}}<li>Мероприятий пока нет.</li>{{end}}</ul>
+{{template "end"}}
+{{end}}
+
+{{define "roles"}}
+<ul>
+{{if .Dancer}}<li>Танцор</li>{{end}}
+{{if .Vocalist}}<li>Вокалист</li>{{end}}
+{{if .Actor}}<li>Актёр{{if .Character}} · {{.Character}}{{end}}</li>{{end}}
+</ul>
+{{end}}
+
+{{define "list"}}
+{{template "head" "Участники"}}
+<p><a href="/admin">Панель администратора</a></p>
+<h1>Участники · {{.Event.Name}}</h1>
+<p><a class="secondary group-action" href="/admin/events/{{.Event.ID}}/participants/groups">Назначить пол</a></p>
+{{if ne .Event.State "open"}}
+  <p><a href="/admin/events/{{.Event.ID}}/participants/new">Добавить участника</a></p>
+{{else if eq .Event.State "open"}}<p>Редактирование доступно после закрытия голосования.</p>{{end}}
+<script defer src="/assets/results.js"></script>
+{{range .Groups}}
+<section class="participant-faculty">
+  <h2>{{.Faculty}}</h2>
+  <div class="participant-grid">
+  {{range .People}}
+    <article class="participant-card">
+      {{if .HasPhoto}}<img class="participant-square" src="/admin/events/{{$.Event.ID}}/participants/{{.ID}}/photo" width="112" height="112" loading="lazy" alt="">{{end}}
+      <div>
+        <h3>{{.Name}}</h3>
+        {{template "roles" .}}
+        <div class="admin-event-actions">
+          <a class="secondary participant-icon" href="/admin/events/{{$.Event.ID}}/participants/{{.ID}}?view=1" aria-label="Открыть анкету {{.Name}}">Анкета</a>
+          {{if ne $.Event.State "open"}}<a class="secondary participant-icon" href="/admin/events/{{$.Event.ID}}/participants/{{.ID}}" aria-label="Редактировать {{.Name}}" title="Редактировать">{{template "pencil-icon"}}</a>{{end}}
+          {{if ne $.Event.State "open"}}
+          <button class="secondary event-danger" type="button" data-event-dialog="delete-person-{{.ID}}" aria-label="Удалить {{.Name}}" title="Удалить">{{template "trash-icon"}}</button>
+          <dialog class="admin-event-dialog" id="delete-person-{{.ID}}" aria-labelledby="delete-person-title-{{.ID}}">
+            <form method="post" action="/admin/events/{{$.Event.ID}}/participants/{{.ID}}/delete">
+              <h3 id="delete-person-title-{{.ID}}">Точно удалить анкету?</h3>
+              <p>Анкета «{{.Name}}» и фото будут удалены.</p>
+              <div class="admin-event-actions">
+                <button class="secondary" formmethod="dialog" autofocus>Отмена</button>
+                <button class="event-danger" type="submit">Удалить</button>
+              </div>
+            </form>
+          </dialog>
+          {{end}}
+        </div>
+      </div>
+    </article>
+  {{end}}
+  </div>
+</section>
+{{else}}<p>В этом мероприятии пока нет участников.</p>{{end}}
+{{template "end"}}
+{{end}}
+
+{{define "form"}}
+{{if .Public}}
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Регистрация участника · Мегабаттл</title>
+<link rel="stylesheet" href="/assets/viewer.css?v=6px"><link rel="stylesheet" href="/assets/admin.css?v=6px"></head><body class="admin-shell"><main class="admin-main">
+{{else}}
+{{template "head" "Анкета участника"}}
+{{end}}
+{{if .Public}}
+<p>{{.Event.Name}}</p>
+{{else}}
+<p><a href="/admin/events/{{.Event.ID}}/participants">К списку участников</a></p>
+{{end}}
+<h1>{{if .Public}}Регистрация участника{{else if .Person.ID}}Анкета участника № {{.Person.ID}}{{else}}Добавить участника{{end}}</h1>
+{{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
+{{if .Person.HasPhoto}}
+  <img src="/admin/events/{{.Event.ID}}/participants/{{.Person.ID}}/photo" class="participant-square" width="240" height="240" alt="Текущее фото участника">
+{{end}}
+{{if .CanEdit}}
+<script defer src="/assets/photo-crop.js?v=durable"></script>
+<form class="participant-form" method="post" enctype="multipart/form-data">
+  {{if .Public}}<input type="hidden" name="submission" value="{{.Submission}}">{{end}}
+  <p><label>Имя и фамилия <input name="name" value="{{.Person.Name}}" required maxlength="160"></label></p>
+  <p><label>Факультет
+    <select name="faculty" required>
+      <option value="">Выбери факультет</option>
+      {{range .Faculties}}<option value="{{.Code}}" {{if eq .Code $.Person.Faculty}}selected{{end}}>{{.ShortName}}</option>{{end}}
+    </select>
+  </label></p>
+  <fieldset>
+    <legend>Роли</legend>
+    <label><input type="checkbox" name="dancer" {{if .Person.Dancer}}checked{{end}}> Танцор</label><br>
+    <label><input type="checkbox" name="vocalist" {{if .Person.Vocalist}}checked{{end}}> Вокалист</label><br>
+    <label><input type="checkbox" name="actor" {{if .Person.Actor}}checked{{end}}> Актёр</label>
+  </fieldset>
+  <p data-character-field><label>Персонаж актёра (по желанию) <input name="character" value="{{.Person.Character}}" maxlength="160"></label></p>
+  <p><label>{{if .Person.HasPhoto}}Заменить фото{{else}}Фото{{end}}
+    <input type="file" name="photo" accept="image/*" {{if .Public}}required{{end}}>
+  </label></p>
+  <div class="participant-crop" hidden>
+    <canvas tabindex="0" width="320" height="320" aria-label="Предпросмотр квадратного фото"></canvas>
+    <p data-original-photo></p>
+    <p data-optimized-photo></p>
+    <p data-crop-hint>Перетащи фото внутри квадрата. Для приближения разведи два пальца или используй кнопки.</p>
+    <div class="participant-photo-actions">
+      <div class="admin-event-actions" data-crop-tools>
+        <div class="crop-zoom" role="group" aria-label="Масштаб фото">
+          <button type="button" data-zoom-out aria-label="Отдалить">−</button>
+          <button type="button" data-zoom-in aria-label="Приблизить">+</button>
+        </div>
+        <button type="button" data-reset-crop>Сбросить</button>
+        <button type="button" class="primary" data-apply-crop>Готово</button>
+      </div>
+      <div class="admin-event-actions" data-photo-options>
+        <button type="button" data-edit-crop hidden>Изменить кадр</button>
+        <button type="button" class="secondary" data-clear-photo>Удалить выбранное фото</button>
+      </div>
+    </div>
+  </div>
+  <p data-photo-error role="alert" hidden></p>
+  <button type="submit">{{if .Public}}Проверить анкету{{else}}Сохранить{{end}}</button>
+  {{if .Public}}
+  <dialog class="admin-event-dialog" id="registration-review" aria-labelledby="registration-review-title">
+    <h2 id="registration-review-title">Проверь анкету</h2>
+    <p>После отправки имя, фото и роли появятся в публичном списке участников.</p>
+    <ul data-registration-summary></ul>
+    <canvas width="180" height="180" aria-label="Итоговое фото"></canvas>
+    <p data-review-error role="alert" hidden></p>
+    <div class="admin-event-actions">
+      <button type="button" class="secondary" data-review-back autofocus>Исправить</button>
+      <button type="button" data-review-submit>Подтвердить и отправить</button>
+    </div>
+  </dialog>
+  {{end}}
+</form>
+  {{if and (not .Public) .Person.ID (ne .Event.State "open")}}
+<details>
+  <summary>Удалить анкету</summary>
+  <form method="post" action="/admin/events/{{.Event.ID}}/participants/{{.Person.ID}}/delete">
+    <p>Анкета и фото будут удалены с сайта голосования.</p>
+    <button type="submit">Подтвердить удаление</button>
+  </form>
+</details>
+{{end}}
+{{else}}
+  {{if eq .Event.State "open"}}<p>Редактирование доступно после закрытия голосования.</p>{{end}}
+  {{if .Person.ID}}<p>{{.Person.Name}} · {{.Person.FacultyShort}}</p>{{template "roles" .Person}}{{end}}
+{{end}}
+{{template "end"}}
+{{end}}
+
+{{define "pencil-icon"}}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15z"/></svg>{{end}}
+
+{{define "trash-icon"}}<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg>{{end}}
+
+{{define "registered"}}
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Анкета принята · Мегабаттл</title><link rel="stylesheet" href="/assets/viewer.css?v=6px"></head>
+<body><main class="wrap"><div class="hero"><p class="kicker">Мегабаттл</p><h1>Анкета принята</h1></div>
+<p class="panel">Имя, роли и фото сохранены. Если понадобится исправить анкету, обратись к организатору.</p>
+</main></body></html>
+{{end}}
+{{define "directory-groups"}}
+{{template "head" "Назначить пол"}}
+<p><a href="/admin/events/{{.Event.ID}}/participants">← К списку участников</a></p>
+<h1>Назначить пол</h1>
+<p>{{.Event.Name}} · {{len .People}} анкет</p>
+{{if .Saved}}<p role="status">Назначения сохранены.</p>{{end}}
+{{if .People}}
+<form method="post" action="/admin/events/{{.Event.ID}}/participants/groups">
+  <ul class="group-assignment-list">
+  {{range .People}}
+    <li class="group-assignment-row">
+      {{if .HasPhoto}}<img src="/admin/events/{{$.Event.ID}}/participants/{{.ID}}/photo" width="48" height="48" loading="lazy" alt="">{{end}}
+      <div id="person-name-{{.ID}}"><strong>{{.Name}}</strong><small>{{.Faculty}}</small></div>
+      <div class="group-assignment-options" role="group" aria-labelledby="person-name-{{.ID}}">
+        <label><input type="radio" name="group-{{.ID}}" value="boy" {{if eq .Group "boy"}}checked{{end}}> Мальчик</label>
+        <label><input type="radio" name="group-{{.ID}}" value="girl" {{if eq .Group "girl"}}checked{{end}}> Девочка</label>
+      </div>
+    </li>
+  {{end}}
+  </ul>
+  <div class="group-assignment-save"><button type="submit" class="primary">Сохранить</button></div>
+</form>
+{{else}}<p>Анкет пока нет.</p>{{end}}
+{{template "end"}}
+{{end}}

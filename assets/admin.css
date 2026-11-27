@@ -1,0 +1,150 @@
+.admin-shell {
+  min-height: 100svh;
+  background:
+    radial-gradient(ellipse at 78% 4%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 50%),
+    linear-gradient(145deg, var(--page), var(--page-end));
+}
+.admin-header, .admin-main { width: min(1060px, calc(100% - 2rem)); margin-inline: auto }
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding-block: 1rem; border-bottom: 1px solid var(--line);
+}
+.admin-header span { color: var(--muted); font-size: .875rem; font-weight: 750; text-align: right }
+.admin-main { padding: clamp(1.25rem, 4vw, 2.5rem) 0 3rem }
+.admin-main h1 { font-size: clamp(1.35rem, 4vw, 2.55rem); text-shadow: 2px 2px 0 color-mix(in srgb, var(--accent) 24%, transparent) }
+.admin-main h2 { margin-top: 1rem }
+.admin-main p { margin-block: .65rem }
+.admin-main :is(p, h1, h2, a, td) { overflow-wrap: anywhere }
+.admin-main > h1 { margin-block: .65rem 1rem }
+.admin-main :is(ul, ol) { padding-inline-start: 1.35rem }
+.admin-main li + li { margin-top: .28rem }
+.admin-title { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.35rem }
+.admin-title .admin-event { margin: 0 0 .45rem; color: var(--highlight); font-size: .9rem; font-weight: 800 }
+.admin-event-management { min-width: 0 }
+.admin-event-heading, .admin-event-row, .admin-event-actions {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .55rem;
+}
+.admin-event-heading, .admin-event-row { justify-content: space-between }
+.admin-event-management .admin-event-heading h2 { margin: 0 }
+.admin-main .admin-event-list { list-style: none; padding: 0; margin: 1rem 0 0 }
+.admin-event-row { padding: .7rem .85rem; border: 1px solid var(--line); border-radius: var(--radius)}
+.admin-event-list .admin-event-row + .admin-event-row { margin-top: .45rem }
+.admin-event-row[data-current] { background: #143329; border-color: #38785d }
+.admin-event-name { display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .65rem; overflow-wrap: anywhere }
+.admin-event-name span { color: #a5e5bf; font-size: .85rem }
+.admin-event-hint { color: var(--muted) }
+.admin-event-actions button { min-height: 44px }
+.admin-event-actions button:has(svg) { display: inline-grid; place-items: center; min-width: 44px; padding: .55rem }
+.admin-main button.event-danger { background: #7f2837; border-color: #c05c6b; color: #fff2f4 }
+.admin-main button.event-danger:hover:not(:disabled) { background: #a3384b }
+.admin-event-dialog { width: min(28rem, calc(100% - 2rem)); padding: 1.25rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink) }
+.admin-event-dialog::backdrop { background: rgb(0 0 0 / .68) }
+.admin-event-dialog form { display: grid; gap: .75rem }
+.admin-event-dialog :is(h3,p) { margin: 0 }
+.admin-event-dialog input:not([type=hidden]) { width: 100% }
+.admin-event-dialog .admin-event-actions { justify-content: flex-end }
+.admin-main .participant-form { width: min(100%, 36rem) }
+.admin-main .participant-form :is(input:not([type=checkbox]), select, fieldset) { width: 100%; min-width: 0; box-sizing: border-box }
+.participant-crop { margin-block: 1rem }
+.participant-crop canvas, .participant-square { display: block; max-width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius)}
+.participant-photo-actions { display: grid; justify-items: start; gap: .75rem }
+.participant-photo-actions .crop-zoom { display: inline-flex; gap: .5rem }
+.admin-main .crop-zoom button { min-width: 44px; padding-inline: .5rem }
+.participant-form [data-photo-options] { gap: .75rem }
+.participant-form dialog .admin-event-actions { margin-top: 1rem }
+@media (max-width: 34rem) {
+  .participant-form > button[type=submit] { width: 100% }
+}
+.participant-form dialog canvas { display: block; max-width: 100%; height: auto; margin: .75rem 0; border-radius: var(--radius)}
+.participant-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem }
+.admin-main .participant-card { display: flex; align-items: start; flex-wrap: wrap; gap: .75rem; margin: 0; min-width: 0 }
+.participant-card h3 { margin: 0; overflow-wrap: anywhere }
+.participant-card ul { margin-block: .45rem }
+.participant-icon { display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; text-decoration: none }
+.participant-icon:has(svg) { padding: .55rem }
+@media (max-width: 57rem) { .participant-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 38rem) { .participant-grid { grid-template-columns: 1fr } }
+#timeline-chart { border-radius: var(--radius); display: block; width: 100%; height: auto; background: var(--surface) }
+.admin-overview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem }
+.admin-overview > section { min-width: 0 }
+.admin-main .admin-block h2 { margin: 0 }
+.admin-block h3 { margin: 0; font-size: 1rem; line-height: 1.3 }
+.admin-block .admin-help { color: var(--muted) }
+.admin-status { display: inline-block; border-radius: var(--radius); background: var(--input); padding: .35rem .75rem; font-weight: 800 }
+.admin-status[data-state=open] { background: var(--blue-wash); color: var(--highlight) }
+.admin-count { color: var(--muted) }
+.admin-count strong { display: block; color: var(--ink); font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.1 }
+.admin-text-link { color: var(--muted); font-weight: 750 }
+.admin-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .85rem }
+.admin-results-head { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: .45rem .85rem }
+.admin-rankings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem }
+.admin-rankings > section { min-width: 0; padding: .85rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--input) }
+.admin-rankings summary { color: var(--highlight); cursor: pointer; font-weight: 750 }
+.admin-rankings table { margin-top: .65rem }
+.admin-block a.secondary { display: inline-flex; align-items: center; text-decoration: none }
+.admin-login { max-width: 32rem; margin: clamp(1rem, 6vh, 3.5rem) auto 0 }
+.admin-login h1 { margin-bottom: 1.5rem }
+.admin-login form { display: grid; gap: .65rem }
+.admin-login button { margin-top: .4rem }
+.admin-main label { font-weight: 750 }
+.admin-main :is(input:not([type=checkbox]), select, textarea) {
+  max-width: 100%; min-height: 44px; padding: .5rem .7rem;
+  color: var(--ink); background: var(--input); border: 1px solid var(--line); border-radius: var(--radius);
+  font: inherit;
+}
+.admin-main input[type=checkbox] { border-radius: var(--radius); accent-color: var(--accent); margin-inline-end: .3rem }
+.admin-main input[type=file]::file-selector-button {
+  margin-inline-end: .55rem; padding: .35rem .55rem;
+  background: var(--blue-wash); color: var(--highlight); border: 0; border-radius: var(--radius); font: inherit;
+}
+.admin-main fieldset { min-width: 0; border: 1px solid var(--line); border-radius: var(--radius); padding: .7rem .9rem }
+.admin-main legend { font-weight: 850 }
+.admin-main form p > label { display: grid; gap: .35rem }
+.admin-main form p { max-width: 36rem }
+.admin-main form button:not([class]) {
+  min-height: 44px; padding: .55rem 1rem; border: 1px solid var(--line); border-radius: var(--radius);
+  color: var(--ink); background: var(--input); font-weight: 800;
+}
+.admin-main form button:not([class]):hover { background: var(--blue-wash) }
+.admin-main form button[type=submit]:not([class]):first-of-type { background: var(--accent); color: #fff; border-color: var(--accent) }
+.admin-main [role=alert], #results-error:not([hidden]) {
+  padding: .6rem .8rem; color: var(--error); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.admin-main article {
+  padding: clamp(.85rem, 3vw, 1.25rem); margin-block: .85rem;
+  border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line);
+}
+.admin-main article h2 { margin-top: 0 }
+.admin-main img { max-width: 100%; height: auto; border-radius: var(--radius)}
+.admin-main table {
+  display: block; width: max-content; max-width: 100%; overflow-x: auto;
+  border-collapse: collapse; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); font-variant-numeric: tabular-nums;
+}
+.admin-main :is(th, td) { min-width: 4rem; padding: .55rem .7rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line) }
+.admin-main th { background: var(--blue-wash); white-space: nowrap }
+.admin-main td input { min-width: 10rem }
+@media (max-width: 700px) {
+  .admin-overview, .admin-rankings { grid-template-columns: 1fr }
+  .admin-main :is(th, td) { padding-inline: .5rem }
+}
+.participant-crop canvas { touch-action: none; cursor: grab }
+.participant-crop canvas:active { cursor: grabbing }
+.participant-crop [hidden], .participant-form [hidden] { display: none }
+@media (max-width: 700px) {
+  .admin-overview[data-vote-state="open"] #voting { order: -1 }
+}
+.admin-main .group-assignment-list { list-style: none; margin: 1rem 0; padding: 0 }
+.group-assignment-row { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; padding: .7rem; border-bottom: 1px solid var(--line) }
+.group-assignment-row > div:first-of-type { flex: 1; min-width: 9rem; overflow-wrap: anywhere }
+.group-assignment-row img { aspect-ratio: 1; object-fit: cover }
+.group-assignment-row small { display: block; color: var(--muted) }
+.group-assignment-options { display: flex; flex-wrap: wrap; gap: .4rem }
+.group-assignment-options label {
+  display: inline-flex; align-items: center; gap: .45rem; min-height: 44px; padding: .35rem .55rem;
+  border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer;
+}
+.group-assignment-options label:has(:checked) { background: var(--blue-wash); border-color: var(--highlight) }
+.admin-main .group-assignment-options input[type=radio] { min-height: auto; accent-color: var(--accent); margin: 0 }
+.group-assignment-save { position: sticky; bottom: 0; padding: .65rem 0; background: var(--surface) }
+.group-action { display: inline-flex; text-decoration: none }

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Title}} · Мегабаттл</title>
+  <link rel="stylesheet" href="/assets/viewer.css?v=6px">
+  <link rel="stylesheet" href="/assets/faculty-chart.css?v=names-alpha">
+  <script defer src="/assets/faculty-chart.js?v=names-alpha"></script>
+</head>
+<body class="faculty-chart" data-nomination="{{.Nomination}}">
+  <main class="faculty-stage">
+    <header class="faculty-heading">
+      <h1>{{.Title}}</h1>
+    </header>
+    <ol class="faculty-bars" aria-label="Пять участников с наибольшим количеством голосов"></ol>
+  </main>
+</body>
+</html>

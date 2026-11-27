@@ -1,0 +1,122 @@
+{{define "voting-home"}}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Голосование Мегабаттла</title>
+  <link rel="icon" href="/assets/logo.png" type="image/png">
+  <link rel="icon" href="/assets/logo-light.png" type="image/png" media="(prefers-color-scheme: light)">
+  <link rel="stylesheet" href="/assets/viewer.css?v=6px">
+  <link rel="stylesheet" href="/assets/brand-background.css">
+  <script defer src="/assets/viewer.js?v=durable"></script>
+</head>
+<body>
+<div id="brand-background" aria-hidden="true"></div>
+<div class="brand-app-layer">
+  <header class="site-header">
+    {{if .Test}}<strong>Тестовый прогон</strong>{{end}}
+    <a class="brand" href="{{if .Test}}/test/{{else}}/{{end}}" aria-label="Мегабаттл, главная голосования">{{template "voting-logo"}}</a>
+  </header>
+  <main class="wrap">
+    <section id="screen" aria-label="Голосование">
+      <div class="hero"><p class="kicker">Приз зрительских симпатий</p>
+        <h1 tabindex="-1">{{stateLabel .Event.State}}</h1></div>
+    </section>
+    <dialog id="vote-confirmation" aria-labelledby="confirmation-title">
+      <h2 id="confirmation-title">{{if .Test}}Тестовый прогон · {{end}}Проверь выбор</h2>
+      <ul class="stack review" id="confirmation-choices"></ul>
+      <p class="error" id="confirmation-error" role="alert" hidden></p>
+      <div class="confirmation-actions">
+        <button type="button" class="secondary" id="change-vote" autofocus>Изменить</button>
+        <button type="button" class="primary" id="confirm-vote">Подтвердить</button>
+      </div>
+    </dialog>
+    <noscript><p class="panel">Для выбора участников включи JavaScript в браузере.</p></noscript>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-brand">{{template "voting-logo"}}</div>
+    <nav class="footer-links" aria-label="Ссылки Мегабаттла">
+      <a href="https://t.me/itmomegabattle"><span>Telegram-канал</span><strong>@itmomegabattle</strong><span class="footer-arrow" aria-hidden="true">↗</span></a>
+      <a href="https://vk.ru/itmomegabattle"><span>ВКонтакте</span><strong>itmomegabattle</strong><span class="footer-arrow" aria-hidden="true">↗</span></a>
+      <a href="https://www.tiktok.com/@itmo_megabattle"><span>TikTok</span><strong>@itmo_megabattle</strong><span class="footer-arrow" aria-hidden="true">↗</span></a>
+      <a href="https://megabattle.site/"><span>Сайт Мегабаттла</span><strong>megabattle.site</strong><span class="footer-arrow" aria-hidden="true">↗</span></a>
+    </nav>
+  </footer>
+</div>
+</body>
+</html>
+{{end}}
+
+{{define "voting-logo"}}<picture>
+  <source media="(prefers-color-scheme: light)" srcset="/assets/logo-light.png">
+  <img src="/assets/logo.png" width="114" height="70" alt="Мегабаттл">
+</picture>{{end}}
+
+{{define "voting-admin"}}
+{{template "head" "Управление голосованием"}}
+<p><a href="/admin">Панель администратора</a></p>
+<h1>{{.Event.Name}}</h1>
+<p><strong>{{stateLabel .Event.State}}</strong></p>
+<p><a href="/admin/results">Результаты</a></p>
+{{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
+{{template "voting-control" .Event}}
+<h2>Журнал действий</h2>
+<ul>{{range .Changes}}<li>{{.Time}} · {{stateLabel .From}} → {{stateLabel .To}}</li>{{else}}<li>Изменений пока нет.</li>{{end}}</ul>
+{{template "end"}}
+{{end}}
+
+{{define "voting-control"}}
+<form method="post" action="/admin/voting">
+  <input type="hidden" name="event_id" value="{{.ID}}">
+  <input type="hidden" name="from" value="{{.State}}">
+  {{if ne .State "open"}}<p><label>Длительность, мин <input type="number" name="minutes" min="1" max="120" value="6" required></label></p>{{end}}
+  {{if eq .State "open"}}
+    <button type="submit" name="to" value="closed">Завершить сейчас</button>
+  {{else if eq .State "closed"}}
+    <button type="submit" name="to" value="open">Открыть повторно</button>
+  {{else}}
+    <button type="submit" name="to" value="open">Открыть голосование</button>
+  {{end}}
+</form>
+{{end}}
+{{define "people"}}
+<!doctype html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · Мегабаттл</title><link rel="stylesheet" href="/assets/viewer.css?v=people-search">
+<script defer src="/assets/people.js?v=live-search"></script>
+</head><body>
+<header class="site-header"><a class="brand" href="/people" aria-label="Участники Мегабаттла">{{template "voting-logo"}}</a></header>
+<main class="wrap">
+  <div class="hero">
+    {{if .Breadcrumb}}<p class="kicker">{{.Breadcrumb}}</p>{{end}}
+    <h1>{{.Title}}</h1>
+    {{if .Back.URL}}<a class="back people-link" href="{{.Back.URL}}">← {{.Back.Label}}</a>{{end}}
+  </div>
+  <form class="people-search" action="/people" method="get" role="search">
+    <label for="search">Поиск по имени или фамилии</label>
+    <input id="search" type="search" name="q" maxlength="160" value="{{.Query}}" placeholder="Имя или фамилия">
+    <button class="primary" type="submit">Найти</button>
+  </form>
+  <div class="panel" id="people">
+    {{if .ShowPeople}}
+      {{if .People}}
+      <ul class="people-cards">
+        {{range .People}}
+        <li class="candidate-card">
+          {{if .HasPhoto}}<img class="candidate-photo" src="/people/photos/{{.ID}}" alt="" loading="lazy" decoding="async">{{end}}
+          <div class="candidate-info"><strong>{{.Name}}</strong>{{if .FacultyShort}}<small>{{.FacultyShort}}</small>{{end}}{{if .Character}}<small>{{.Character}}</small>{{end}}</div>
+        </li>
+        {{end}}
+      </ul>
+      {{else}}<p>{{if .Query}}Никого не нашли. Попробуй другую часть имени или фамилии.{{else}}В этой группе пока нет участников.{{end}}</p>{{end}}
+    {{else}}
+      <ul class="stack choices people-choices">
+        {{range .Choices}}
+          <li><a class="choice people-link" href="{{.URL}}"><strong>{{.Label}}</strong><span class="choice-arrow" aria-hidden="true">›</span></a></li>
+        {{end}}
+      </ul>
+    {{end}}
+  </div>
+</main></body></html>
+{{end}}

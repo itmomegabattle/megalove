@@ -1,0 +1,225 @@
+@font-face {
+  font-family: Druk;
+  src: url("/assets/druk.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: Raleway;
+  src: url("/assets/raleway.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root {
+  color-scheme: light dark;
+  --radius: 6px;
+  --accent: #0069e0;
+  --highlight: #0062d2;
+  --page: #edf2f9;
+  --page-end: #dbe5f4;
+  --surface: #fff;
+  --ink: #061222;
+  --muted: #3e5873;
+  --line: #c7d4e5;
+  --input: #f8faff;
+  --blue-wash: #e6f0ff;
+  --error: #a03038;
+  --shadow: 0 18px 56px #1d45701a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --highlight: #8fc8ff;
+    --page: #03070d;
+    --page-end: #050e20;
+    --surface: #0e1725;
+    --ink: #f5f8fc;
+    --muted: #b7c6d9;
+    --line: #33445b;
+    --input: #0b1320;
+    --blue-wash: #102c50;
+    --error: #ffafb4;
+    --shadow: 0 18px 56px #0006;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(145deg, var(--page), var(--page-end));
+  color: var(--ink);
+  font: 550 1rem/1.5 Raleway, "Segoe UI", sans-serif;
+}
+a { color: var(--highlight); text-underline-offset: .18em }
+button, input { font: inherit }
+button { cursor: pointer }
+button:disabled { cursor: default }
+:focus-visible { outline: 3px solid var(--highlight); outline-offset: 3px }
+h1:focus { outline: none }
+h1, h2, p { margin: 0 }
+h1 {
+  font: 400 clamp(1.65rem, 5.6vw, 3.55rem)/1.14 Druk, "Segoe UI", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -.028em;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  text-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 32%, transparent);
+}
+h2 { font-size: clamp(1.18rem, 3vw, 1.45rem); line-height: 1.2; font-weight: 850 }
+small { display: block; color: var(--muted); font-size: .875rem; font-weight: 650 }
+.brand-app-layer { display: flex; flex-direction: column; padding-bottom: clamp(1rem, 4vw, 3rem) }
+.site-header, .site-footer { width: min(1180px, calc(100% - 2 * clamp(1rem, 5vw, 4rem))); margin-inline: auto }
+.site-header { padding-block: 1.2rem; display: flex; align-items: center }
+.brand { display: inline-flex; align-items: center; min-height: 44px }
+.brand img { display: block; width: 66px; height: auto }
+.wrap { flex: 1 0 auto; width: min(770px, calc(100% - 2 * clamp(1rem, 5vw, 4rem))); margin: clamp(1.1rem, 4.5vw, 3.5rem) auto 0 }
+.hero { margin-bottom: clamp(1.25rem, 4vw, 2rem) }
+.kicker { margin-bottom: .55rem; color: var(--highlight); font-size: .82rem; font-weight: 850; letter-spacing: .06em }
+.panel {
+  min-width: 0;
+  padding: clamp(1rem, 4vw, 2rem);
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; flex-wrap: wrap }
+.availability {
+  color: var(--highlight);
+  background: var(--blue-wash);
+  border-radius: var(--radius);
+  padding: .28rem .7rem;
+  font-size: .84rem;
+  font-weight: 850;
+}
+.stack { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem }
+.choices { margin-top: 1rem }
+.stack > li { min-width: 0 }
+.choice, .candidate-card {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: .9rem;
+  min-height: 3.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .72rem .85rem;
+  color: var(--ink);
+  background: var(--input);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.choice strong, .candidate-info strong, .summary strong { font-weight: 850 }
+.choice-arrow { color: var(--highlight); flex: none; font-size: 1.45rem; line-height: 1 }
+.choice.is-selected, .candidate-card.is-selected { background: var(--blue-wash); border-color: var(--highlight) }
+@media (hover: hover) {
+  .choice:hover, .candidate-card:hover, .secondary:hover { background: var(--blue-wash) }
+}
+.actions { display: flex; justify-content: flex-end; margin-top: 1.1rem }
+.primary, .secondary, .back {
+  min-height: 2.8rem;
+  border-radius: var(--radius);
+  padding: .6rem 1rem;
+  font-weight: 850;
+}
+.primary { background: var(--accent); border: 1px solid var(--accent); color: #fff }
+.primary:hover:not(:disabled) { background: #0057bd }
+.primary:disabled { background: var(--blue-wash); color: var(--muted); border-color: var(--line) }
+.secondary { border: 1px solid var(--line); background: transparent; color: var(--highlight) }
+.back { margin-top: 1rem; color: var(--highlight); background: var(--input); border: 1px solid var(--line) }
+.back:hover { background: var(--blue-wash) }
+.back:disabled { opacity: .65 }
+.status-panel { display: grid; justify-items: start; gap: 1rem }
+.status-panel p { color: var(--muted) }
+.field { display: grid; gap: .35rem; margin-top: .85rem; font-size: .92rem; font-weight: 780 }
+#search {
+  width: 100%;
+  min-height: 2.9rem;
+  padding: .6rem .8rem;
+  font-size: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--input);
+  color: var(--ink);
+}
+#search::placeholder { color: var(--muted) }
+#list-status { color: var(--muted); margin-top: .9rem }
+#list-status:empty { margin: 0 }
+#candidates { gap: .85rem; margin-top: .9rem }
+#candidates:empty { margin: 0 }
+.candidate-card { display: block; overflow: hidden; padding: 0 }
+.candidate-photo {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--blue-wash);
+  color: var(--muted);
+}
+.candidate-info { display: block; padding: .8rem .85rem }
+.summary { padding: .7rem 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere }
+.summary:first-child { padding-top: 0 }
+.error { margin-top: .9rem; padding: .65rem .8rem; border: 1px solid var(--line); border-radius: var(--radius); color: var(--error); font-weight: 700 }
+
+#vote-confirmation {
+  width: min(30rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: clamp(1rem, 5vw, 1.75rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+#vote-confirmation::backdrop { background: #030a16b8 }
+#vote-confirmation .review { margin-top: 1rem }
+.confirmation-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; margin-top: 1.2rem }
+
+.site-footer {
+  margin-top: clamp(2rem, 6vw, 4rem);
+  padding: .75rem;
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(0, 5fr);
+  gap: .75rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.footer-brand { display: grid; place-items: center; padding: 1rem; background: var(--blue-wash); border: 1px solid var(--line); border-radius: var(--radius)}
+.footer-brand picture { display: block; width: min(100%, 114px) }
+.footer-brand img { display: block; width: 100%; height: auto }
+.footer-links { min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; padding: .55rem; border: 1px solid var(--line); border-radius: var(--radius)}
+.footer-links a { position: relative; display: grid; align-content: center; gap: .3rem; min-height: 5rem; padding: .65rem 1.7rem .65rem .75rem; border-radius: var(--radius); background: var(--input); color: var(--ink); text-decoration: none; overflow-wrap: anywhere }
+.footer-links a:hover { background: var(--blue-wash) }
+.footer-links a span { color: var(--muted); font-size: .8rem }
+.footer-links .footer-arrow { position: absolute; top: .55rem; right: .65rem; color: var(--highlight) }
+@media (prefers-color-scheme: dark) {
+  .footer-brand { background: #0b1728; border-color: #26364a }
+}
+@media (min-width: 600px) {
+  #candidates { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start }
+}
+@media (max-width: 700px) {
+  .site-footer { grid-template-columns: 1fr }
+  .footer-brand picture { width: min(100%, 82px) }
+}
+@media (max-width: 840px) {
+  .footer-links { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
+@media (max-width: 520px) {
+  .footer-links a { min-height: 3.75rem; padding-inline: .55rem 1.15rem; font-size: .86rem }
+  .footer-links .footer-arrow { right: .4rem }
+  .actions .primary { width: 100% }
+  .confirmation-actions > button { flex: 1 1 auto }
+}
+.people-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr)); gap: .75rem; margin-top: 1rem; list-style: none; padding: 0 }
+.people-cards .candidate-card { cursor: auto; height: auto; overflow-wrap: anywhere }
+
+.people-link { display: flex; text-decoration: none }
+.back.people-link { display: inline-flex }
+.people-choices, .people-cards { margin-block: 0 }
+.people-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .45rem .65rem; margin-bottom: 1rem }
+.people-search label { grid-column: 1 / -1; font-weight: 750 }
+.people-search #search { min-width: 0; margin: 0 }

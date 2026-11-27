@@ -1,0 +1,246 @@
+{{define "dashboard"}}
+{{template "head" "Панель администратора"}}
+<script defer src="/assets/results.js"></script>
+<div class="admin-title">
+  <div>{{if .Results.Event.ID}}<p class="admin-event">Панель администратора</p>{{end}}<h1>{{if .Results.Event.ID}}{{.Results.Event.Name}}{{else}}Панель администратора{{end}}</h1></div>
+  <form method="post" action="/admin/logout"><button class="secondary" type="submit">Выйти</button></form>
+</div>
+<div class="admin-overview" data-vote-state="{{.Results.Event.State}}">
+<section class="panel admin-event-management" id="event-management">
+  <div class="admin-event-heading">
+    <h2>Мероприятия</h2>
+    <button type="button" class="secondary" data-event-dialog="event-create">Создать мероприятие</button>
+  </div>
+  {{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
+  {{if .EventNotice}}<p role="status">{{.EventNotice}}</p>{{end}}
+  {{if .NewEventID}}<p role="status">Мероприятие создано.</p>{{end}}
+  {{if eq .Results.Event.State "open"}}<p class="admin-event-hint">Чтобы сменить текущее мероприятие, закрой голосование.</p>{{end}}
+  {{if .Events}}
+  <ul class="admin-event-list">
+    {{range .Events}}
+    {{$current := eq .ID $.Results.Event.ID}}
+    <li class="admin-event-row" {{if $current}}data-current{{end}}>
+      <div class="admin-event-name">
+        <strong>{{.Name}}</strong>
+        {{if $current}}<span>Текущее</span>{{end}}
+      </div>
+      <div class="admin-event-actions">
+        <button class="secondary" type="button" data-event-dialog="event-start-{{.ID}}" {{if or $current (eq $.Results.Event.State "open")}}disabled{{end}}>Запустить</button>
+        <button class="secondary" type="button" data-event-dialog="event-edit-{{.ID}}" aria-label="Переименовать {{.Name}}" title="Переименовать">
+          {{template "pencil-icon"}}
+        </button>
+        <button class="secondary event-danger" type="button" data-event-dialog="event-delete-{{.ID}}" aria-label="Удалить {{.Name}}" title="Удалить" {{if eq .State "open"}}disabled{{end}}>
+          {{template "trash-icon"}}
+        </button>
+      </div>
+      <dialog class="admin-event-dialog" id="event-start-{{.ID}}" aria-labelledby="event-start-title-{{.ID}}">
+        <form method="post" action="/admin/events/select">
+          <h3 id="event-start-title-{{.ID}}">Запустить мероприятие?</h3>
+          <p>«{{.Name}}» станет текущим. Голосование можно открыть отдельно.</p>
+          <input type="hidden" name="event_id" value="{{.ID}}">
+          <div class="admin-event-actions">
+            <button class="secondary" formmethod="dialog" autofocus>Отмена</button>
+            <button type="submit">Запустить</button>
+          </div>
+        </form>
+      </dialog>
+      <dialog class="admin-event-dialog" id="event-delete-{{.ID}}" aria-labelledby="event-delete-title-{{.ID}}">
+        <form method="post" action="/admin/events/{{.ID}}/delete">
+          <h3 id="event-delete-title-{{.ID}}">Точно удалить?</h3>
+          <p>«{{.Name}}» будет удалено. Анкет с фотографиями: {{.PeopleCount}}. Бюллетеней: {{.BallotCount}}.</p>
+          <input type="hidden" name="confirm" value="{{.Name}}">
+          <div class="admin-event-actions">
+            <button class="secondary" formmethod="dialog" autofocus>Отмена</button>
+            <button class="event-danger" type="submit">Удалить</button>
+          </div>
+        </form>
+      </dialog>
+      <dialog class="admin-event-dialog" id="event-edit-{{.ID}}" aria-labelledby="event-edit-title-{{.ID}}">
+        <form method="post" action="/admin/events/{{.ID}}/edit">
+          <h3 id="event-edit-title-{{.ID}}">Переименовать мероприятие</h3>
+          <label for="edit-event-name-{{.ID}}">Название</label>
+          <input id="edit-event-name-{{.ID}}" name="name" value="{{.Name}}" maxlength="120" required autofocus>
+          <div class="admin-event-actions">
+            <button class="secondary" formmethod="dialog" formnovalidate>Отмена</button>
+            <button type="submit">Сохранить</button>
+          </div>
+        </form>
+      </dialog>
+    </li>
+    {{end}}
+  </ul>
+  {{else}}<p class="admin-event-hint">Мероприятий пока нет.</p>{{end}}
+  <dialog class="admin-event-dialog" id="event-create" aria-labelledby="event-create-title">
+    <form method="post" action="/admin/events/create">
+      <h3 id="event-create-title">Создать мероприятие</h3>
+      <label for="event-name">Название</label>
+      <input id="event-name" name="name" maxlength="120" required autofocus>
+      <div class="admin-event-actions">
+        <button class="secondary" formmethod="dialog" formnovalidate>Отменить</button>
+        <button type="submit">Создать</button>
+      </div>
+    </form>
+  </dialog>
+</section>
+{{if .Results.Event.ID}}
+  <section class="panel admin-block" id="voting">
+    <h2>Голосование</h2>
+    <p><a href="/test/">Тестовая страница</a> · <a href="/admin/test-qr" download>Скачать QR теста</a></p>
+    {{if .BackupActive}}
+      <p class="admin-status" data-state="open">План Б · запущен</p>
+    {{else if .Results.Kind}}
+      <p class="admin-status" data-state="{{.Results.Event.State}}">
+        {{if eq .Results.Kind "test"}}Тестовый прогон{{else}}Основное голосование{{end}} ·
+        {{if eq .Results.Event.State "open"}}приём голосов идёт{{else}}приём голосов завершён{{end}}
+      </p>
+    {{else}}
+      <p class="admin-status" data-state="preparing">Голосование ещё не запущено</p>
+    {{end}}
+    {{if and (eq .Results.Event.State "open") .Results.Deadline}}<p><strong data-countdown="{{.Results.EndsUnix}}"></strong> · до {{.Results.Deadline}}</p>{{end}}
+    {{if ne .Results.Event.State "open"}}<p class="admin-help">При запуске сохранится состав этого прогона.</p>{{end}}
+    {{if and .HasTest (ne .Results.Event.State "open")}}<p>Изменено анкет с последнего теста: <strong>{{.RosterChanges}}</strong></p>{{end}}
+    {{if .BackupActive}}<p>Основное голосование закрыто после запуска Плана Б.</p>{{else}}{{template "run-control" .Results}}{{end}}
+  </section>
+  <section class="panel admin-block" id="participants">
+    <h2>Участники</h2>
+    {{if .LastBackup}}<small>Копия на компьютере · {{.LastBackup}} МСК</small>{{else}}<small>Время внешней копии ещё не подтверждено</small>{{end}}
+    <p class="admin-count"><strong>{{.Results.Participants}}</strong>Всего анкет</p>
+    <p><a href="/register/{{.RegistrationKey}}">Ссылка для участников</a></p>
+    <p><a class="secondary" href="/admin/events/{{.Results.Event.ID}}/registration/qr" download>Скачать QR регистрации</a></p>
+    {{if ne .Results.Event.State "open"}}
+      <form method="post" action="/admin/registration">
+        <input type="hidden" name="event_id" value="{{.Results.Event.ID}}">
+        {{if .RegistrationOpen}}
+          <button class="secondary" name="action" value="close">Закрыть регистрацию</button>
+        {{else}}
+          <button class="secondary" name="action" value="open">Открыть регистрацию</button>
+        {{end}}
+      </form>
+    {{else if eq .Results.Event.State "open"}}<p class="admin-help">Анкеты можно редактировать после закрытия голосования.</p>{{end}}
+    <div class="admin-event-actions"><a class="secondary" href="/admin/events/{{.Results.Event.ID}}/participants">Список участников</a><a class="secondary" href="/admin/events/{{.Results.Event.ID}}/participants/groups">Назначить пол</a></div>
+    {{if ne .Results.Event.State "open"}}<p><a class="secondary" href="/admin/events/{{.Results.Event.ID}}/participants/new">Добавить участника</a></p>{{end}}
+  </section>
+  <section class="panel admin-block" id="plan-b">
+    <h2>План Б</h2>
+    <p><a class="admin-text-link" href="/admin/events/{{.Results.Event.ID}}/backup" data-backup-status>{{if .BackupActive}}Запущен{{else}}Проверяем готовность…{{end}}</a></p>
+    {{if .BackupURL}}
+      <p><a href="{{.BackupURL}}">Форма для зрителей</a></p>
+      <p><a class="secondary" href="/admin/events/{{.Results.Event.ID}}/backup/qr" download>Скачать QR-код</a></p>
+    {{else}}<p class="admin-help">Резервная форма ещё не подключена.</p>{{end}}
+    {{if not .BackupActive}}
+    <button type="button" class="secondary" data-backup-launch data-event-dialog="backup-launch" disabled>Запустить План Б</button>
+    <dialog class="admin-event-dialog" id="backup-launch" aria-labelledby="backup-launch-title">
+      <form method="post" action="/admin/events/{{.Results.Event.ID}}/backup">
+        <h3 id="backup-launch-title">Запустить План Б?</h3>
+        <p>Сначала Google Форма начнёт принимать ответы, затем сайт закроет основное голосование.</p>
+        <div class="admin-event-actions">
+          <button class="secondary" formmethod="dialog" autofocus>Отмена</button>
+          <button type="submit">Запустить</button>
+        </div>
+      </form>
+    </dialog>
+    {{end}}
+  </section>
+{{end}}
+</div>
+{{if .Results.Event.ID}}
+<p id="results-error" role="status" hidden></p>
+{{template "result-content" .Results}}
+{{end}}
+{{template "end"}}
+{{end}}
+
+{{define "timeline"}}
+{{template "head" "Посекундные графики"}}
+<p><a href="/admin">Вернуться в админку</a></p>
+<h1>Посекундные графики</h1>
+<section class="panel" id="timeline" data-chart="{{.}}">
+  <p><label>Кандидат <select id="timeline-candidate"></select></label></p>
+  <p><label>Показать <select id="timeline-mode"><option value="delta">Голосов за секунду</option><option value="total">Накопленный итог</option></select></label></p>
+  <canvas id="timeline-chart" width="800" height="260" aria-label="График голосов по времени"></canvas>
+  <p id="timeline-summary" role="status"></p>
+</section>
+<script defer src="/assets/timeline.js"></script>
+{{template "end"}}
+{{end}}
+
+{{define "results"}}
+{{template "head" "Результаты голосования"}}
+<script defer src="/assets/results.js"></script>
+<p><a href="/admin">Панель администратора</a></p>
+<p id="results-error" role="status" hidden></p>
+{{template "result-content" .}}
+{{template "end"}}
+{{end}}
+
+{{define "result-content"}}
+<section class="panel admin-block" id="results-content" data-state="{{.Event.State}}" data-event-id="{{.Event.ID}}" data-run-id="{{.RunID}}">
+  <div class="admin-results-head">
+    <div><h2>Результаты{{if eq .Kind "test"}} тестового прогона{{else if eq .Kind "main"}} основного голосования{{end}}</h2>
+    {{if .Runs}}<form action="/admin/results"><label>История голосований <select name="run">{{range .Runs}}<option value="{{.ID}}" {{if eq $.RunID .ID}}selected{{end}}>{{.Label}}</option>{{end}}</select></label> <button>Посмотреть</button></form>{{end}}<p>Принято бюллетеней: <strong>{{.Ballots}}</strong></p></div>
+    <small>Обновлено: {{.Updated}}</small>
+  </div>
+  {{if eq .Event.State "closed"}}
+    {{if .Verified}}
+      <p>Контрольный пересчёт совпал.</p>
+      <p><a class="secondary" href="/admin/results/export?run={{.RunID}}">Скачать CSV</a></p>
+      <p><a href="/admin/results/journal?run={{.RunID}}">Журнал бюллетеней CSV</a> · <a href="/admin/results/timeline?run={{.RunID}}">Посекундные графики</a></p>
+    {{else}}
+      <p role="alert">Итоговый подсчёт и контрольный пересчёт разошлись. Выгрузка приостановлена.</p>
+    {{end}}
+  {{end}}
+  <div class="admin-rankings">{{range .Nominations}}
+    <section>
+      <h3>{{.Title}}</h3>
+      {{if .Votes}}
+        <p>Лидеры:
+        {{range .Candidates}}{{if .Leader}}<strong>{{.Name}} ({{.Faculty}}) · {{.Votes}}</strong> {{end}}{{end}}
+        </p>
+      {{else}}<p>Нет голосов</p>{{end}}
+      {{if eq $.Event.State "open"}}
+      <ul>{{range .Candidates}}{{if .Recent}}<li>{{.Name}} ({{.Faculty}}): +{{.Recent}} за 10 с</li>{{end}}{{end}}</ul>
+      {{end}}
+      {{if .Candidates}}
+        <details data-ranking="{{.Code}}">
+        <summary>Полный рейтинг</summary>
+        <table>
+          <thead><tr><th scope="col">Место</th><th scope="col">Участник</th><th scope="col">Факультет</th><th scope="col">Голоса</th></tr></thead>
+          <tbody>{{range .Candidates}}<tr><td>{{if .Place}}{{.Place}}{{else}}—{{end}}</td>
+            <td>{{.Name}}</td><td>{{.Faculty}}</td><td>{{.Votes}}</td></tr>{{end}}</tbody>
+        </table>
+        <p>Всего в номинации: {{.Votes}}</p>
+        </details>
+      {{end}}
+    </section>
+  {{end}}</div>
+  {{if .RecentBallots}}
+  <details id="recent-ballots"><summary>Последние бюллетени</summary>
+    <ul>{{range .RecentBallots}}<li>№ {{.ID}} · {{.At.Format "15:04:05.000 MST"}} · танцор {{.Dancer}} · вокалист {{.Vocalist}} · актёр {{.Actor}}</li>{{end}}</ul>
+  </details>
+  {{end}}
+</section>
+{{end}}
+
+{{define "run-control"}}
+<form method="post" action="/admin/voting" data-run-control data-event-name="{{.Event.Name}}">
+  <input type="hidden" name="event_id" value="{{.Event.ID}}">
+  <input type="hidden" name="from" value="{{.Event.State}}">
+  <input type="hidden" name="revision" value="{{.Revision}}">
+  {{if eq .Event.State "open"}}
+    <input type="hidden" name="to" value="closed">
+    <button name="mode" value="{{.Kind}}">{{if eq .Kind "test"}}Завершить тест{{else}}Завершить основное голосование{{end}}</button>
+  {{else}}
+    <input type="hidden" name="to" value="open">
+    <label>Длительность, мин <input type="number" name="minutes" value="6" min="1" max="120" required></label>
+    <div class="admin-event-actions">
+      <button class="secondary" name="mode" value="new-test">Тестовый прогон</button>
+      <button type="submit" name="mode" value="main">{{if .HasMain}}Открыть основное повторно{{else}}Открыть основное голосование{{end}}</button>
+      {{if eq .Kind "test"}}<button class="secondary" name="mode" value="test">Продолжить предыдущий тест</button>{{end}}
+    </div>
+  {{end}}
+</form>
+<dialog class="admin-event-dialog" data-run-review><form method="dialog">
+  <h3 data-action-title></h3><p data-action-summary></p>
+  <div class="admin-event-actions"><button value="cancel" class="secondary" autofocus>Отмена</button><button value="ok">Подтвердить</button></div>
+</form></dialog>
+{{end}}

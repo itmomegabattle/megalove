@@ -1,0 +1,31 @@
+{{define "backup-checklist"}}
+{{template "head" "План Б"}}
+<p><a href="/admin#plan-b">К панели администратора</a></p>
+<h1>План Б · чек-лист</h1>
+<section class="panel">
+  {{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
+  {{if .Active}}<p role="status">План Б запущен. Основное голосование закрыто.</p>
+  {{else if .Ready}}<p role="status">Готов к запуску.</p>
+  {{else}}<p role="status">Есть невыполненные пункты.</p>{{end}}
+  <ul class="backup-checklist">
+    {{range .Checks}}<li><strong>{{if .OK}}Готово{{else}}Проверить{{end}}</strong> · {{.Label}}</li>{{end}}
+  </ul>
+  <p><a href="/admin/backup-form/candidates">Скачать список кандидатов</a></p>
+  {{if .URL}}
+  <p><a href="{{.URL}}">Форма для зрителей</a> · <a href="/admin/events/{{.EventID}}/backup/qr">Скачать постоянный QR</a> · <a href="{{.Editor}}">Редактор Google Forms</a></p>
+  {{else}}<p>Для подключения нужны ID формы, адрес для зрителей, утверждённое количество анкет и доступ Google Forms API.</p>{{end}}
+  {{if and .CanReview (not .Ready)}}
+  <form method="post" action="/admin/events/{{.EventID}}/backup/review">
+    <p>Сверь состав, проверь QR и доступ зрителя, сделай пробную отправку и проверь выгрузку. Удали пробный ответ после проверки.</p>
+    <button type="submit">Подтвердить проверку</button>
+  </form>
+  {{end}}
+  {{if and .Ready (not .Active)}}
+  <form method="post" action="/admin/events/{{.EventID}}/backup">
+    <p>Google должна подтвердить, что принимает ответы. После этого сайт закроет основное голосование.</p>
+    <button type="submit">Запустить План Б</button>
+  </form>
+  {{end}}
+</section>
+{{template "end"}}
+{{end}}

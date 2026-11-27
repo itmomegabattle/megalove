@@ -1,0 +1,13 @@
+.env
+.env.*
+*.pem
+*.key
+*.dpapi
+*.dump
+*.sqlite
+*.db
+*credentials*.json
+*token*.json
+/megalove
+/megalove.exe
+/deploy/megalove-linux-amd64
